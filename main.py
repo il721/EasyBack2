@@ -210,22 +210,26 @@ class BackupApp:
             total = len(self.sources)
 
             for i, item in enumerate(self.sources):
-                path = item["source"]
-                dest = item["dest"]
-                name = os.path.basename(path)
+                try:
+                    path = item["source"]
+                    dest = item["dest"]
+                    name = os.path.basename(path)
 
-                self.status_label.config(text=f"Copying: {name}")
-                self.progress['value'] = (i / total) * 100
+                    self.status_label.config(text=f"Copying: {name}")
+                    self.progress['value'] = (i / total) * 100
 
-                os.makedirs(dest, exist_ok=True)
-                target_path = os.path.join(dest, name)
+                    os.makedirs(dest, exist_ok=True)
+                    target_path = os.path.join(dest, name)
 
-                if os.path.isdir(path):
-                    if os.path.exists(target_path):
-                        shutil.rmtree(target_path)
-                    shutil.copytree(path, target_path)
-                else:
-                    shutil.copy2(path, target_path)
+                    if os.path.isdir(path):
+                        # Use dirs_exist_ok=True to overwrite/merge without deleting first (Python 3.8+)
+                        shutil.copytree(path, target_path, dirs_exist_ok=True)
+                    else:
+                        shutil.copy2(path, target_path)
+                except Exception as item_error:
+                    print(f"Failed to copy {path}: {item_error}")
+                    # Continue to next item even if one fails
+                    continue
 
             self.progress['value'] = 100
             self.status_label.config(text="Backup completed successfully!", fg="green")
