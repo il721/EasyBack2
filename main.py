@@ -13,22 +13,22 @@ class BackupApp:
         self.root.title("Simple Backup Tool")
         self.root.geometry("800x600")
 
-        self.sources = []  # Список словарей: {"source": path, "dest": path}
+        self.sources = []  # List of dictionaries: {"source": path, "dest": path}
         self.default_dest = tk.StringVar()
 
         self.setup_ui()
 
     def setup_ui(self):
-        # Секция выбора источников и их назначений
-        frame_top = tk.LabelFrame(self.root, text="Список бэкапа (Источник -> Назначение)", padx=10,
+        # Section for selecting sources and their destinations
+        frame_top = tk.LabelFrame(self.root, text="Backup List (Source -> Destination)", padx=10,
                                   pady=10)
         frame_top.pack(fill="both", expand=True, padx=10, pady=5)
 
-        # Используем Treeview для отображения колонок
+        # Use Treeview to display columns
         columns = ("source", "dest")
         self.tree = ttk.Treeview(frame_top, columns=columns, show="headings")
-        self.tree.heading("source", text="Источник")
-        self.tree.heading("dest", text="Назначение")
+        self.tree.heading("source", text="Source")
+        self.tree.heading("dest", text="Destination")
         self.tree.column("source", width=350)
         self.tree.column("dest", width=350)
         self.tree.pack(side="left", fill="both", expand=True)
@@ -41,51 +41,51 @@ class BackupApp:
         btn_frame = tk.Frame(self.root)
         btn_frame.pack(fill="x", padx=10, pady=5)
 
-        tk.Button(btn_frame, text="Добавить файл", command=self.add_file).pack(side="left", padx=2)
-        tk.Button(btn_frame, text="Добавить папку", command=self.add_folder).pack(side="left",
+        tk.Button(btn_frame, text="Add File", command=self.add_file).pack(side="left", padx=2)
+        tk.Button(btn_frame, text="Add Folder", command=self.add_folder).pack(side="left",
                                                                                   padx=2)
-        tk.Button(btn_frame, text="Удалить выбранные", command=self.remove_selected).pack(
+        tk.Button(btn_frame, text="Delete Selected", command=self.remove_selected).pack(
             side="left", padx=2)
 
-        tk.Button(btn_frame, text="Сохранить список", command=self.save_list).pack(side="right",
+        tk.Button(btn_frame, text="Save List", command=self.save_list).pack(side="right",
                                                                                    padx=2)
-        tk.Button(btn_frame, text="Загрузить список", command=self.load_list).pack(side="right",
+        tk.Button(btn_frame, text="Load List", command=self.load_list).pack(side="right",
                                                                                    padx=2)
 
-        # Секция редактирования пути назначения для выбранных элементов
-        frame_edit = tk.LabelFrame(self.root, text="Настройка назначения для выбранных", padx=10,
+        # Section for editing the destination path for selected items
+        frame_edit = tk.LabelFrame(self.root, text="Set Destination for Selected", padx=10,
                                    pady=10)
         frame_edit.pack(fill="x", padx=10, pady=5)
 
         self.edit_dest_var = tk.StringVar()
         tk.Entry(frame_edit, textvariable=self.edit_dest_var).pack(side="left", fill="x",
                                                                    expand=True, padx=5)
-        tk.Button(frame_edit, text="Обзор", command=self.browse_edit_dest).pack(side="left", padx=2)
-        tk.Button(frame_edit, text="Применить к выбранным",
+        tk.Button(frame_edit, text="Browse", command=self.browse_edit_dest).pack(side="left", padx=2)
+        tk.Button(frame_edit, text="Apply to Selected",
                   command=self.apply_dest_to_selected).pack(side="left", padx=2)
 
-        # Секция выбора назначения по умолчанию (для новых элементов)
-        frame_mid = tk.LabelFrame(self.root, text="Назначение по умолчанию (для новых элементов)",
+        # Section for selecting the default destination (for new items)
+        frame_mid = tk.LabelFrame(self.root, text="Default Destination (for new items)",
                                   padx=10, pady=10)
         frame_mid.pack(fill="x", padx=10, pady=5)
 
         tk.Entry(frame_mid, textvariable=self.default_dest).pack(side="left", fill="x", expand=True,
                                                                  padx=5)
-        tk.Button(frame_mid, text="Обзор", command=self.browse_default_dest).pack(side="right")
+        tk.Button(frame_mid, text="Browse", command=self.browse_default_dest).pack(side="right")
 
-        # Кнопка запуска и статус
-        self.btn_start = tk.Button(self.root, text="ЗАПУСТИТЬ БЭКАП", bg="#4CAF50", fg="white",
+        # Start button and status
+        self.btn_start = tk.Button(self.root, text="START BACKUP", bg="#4CAF50", fg="white",
                                    font=("Arial", 12, "bold"), command=self.start_backup_thread)
         self.btn_start.pack(pady=10, fill="x", padx=15)
 
-        self.status_label = tk.Label(self.root, text="Готов к работе", fg="blue")
+        self.status_label = tk.Label(self.root, text="Ready", fg="blue")
         self.status_label.pack()
 
         self.progress = ttk.Progressbar(self.root, orient="horizontal", mode="determinate")
         self.progress.pack(fill="x", padx=15, pady=5)
 
     def add_file(self):
-        files = filedialog.askopenfilenames(title="Выберите файлы")
+        files = filedialog.askopenfilenames(title="Select Files")
         for f in files:
             dest = self.default_dest.get()
             item = {"source": f, "dest": dest}
@@ -93,7 +93,7 @@ class BackupApp:
             self.tree.insert("", tk.END, values=(f, dest))
 
     def add_folder(self):
-        folder = filedialog.askdirectory(title="Выберите папку")
+        folder = filedialog.askdirectory(title="Select Folder")
         if folder:
             dest = self.default_dest.get()
             item = {"source": folder, "dest": dest}
@@ -105,9 +105,9 @@ class BackupApp:
         if not selected_items:
             return
 
-        # Получаем индексы выбранных элементов
+        # Get indices of selected items
         indices = [self.tree.index(item) for item in selected_items]
-        # Сортируем индексы в обратном порядке, чтобы удаление не влияло на последующие индексы
+        # Sort indices in reverse order so that deletion does not affect subsequent indices
         indices.sort(reverse=True)
 
         for index in indices:
@@ -117,12 +117,12 @@ class BackupApp:
             self.tree.delete(item)
 
     def browse_default_dest(self):
-        folder = filedialog.askdirectory(title="Выберите папку для бэкапа по умолчанию")
+        folder = filedialog.askdirectory(title="Select Default Backup Folder")
         if folder:
             self.default_dest.set(folder)
 
     def browse_edit_dest(self):
-        folder = filedialog.askdirectory(title="Выберите папку назначения")
+        folder = filedialog.askdirectory(title="Select Destination Folder")
         if folder:
             self.edit_dest_var.set(folder)
 
@@ -130,10 +130,10 @@ class BackupApp:
         selected_items = self.tree.selection()
         new_dest = self.edit_dest_var.get()
         if not selected_items:
-            messagebox.showwarning("Внимание", "Выберите элементы в списке!")
+            messagebox.showwarning("Attention", "Select items in the list!")
             return
         if not new_dest:
-            messagebox.showwarning("Внимание", "Введите или выберите путь назначения!")
+            messagebox.showwarning("Attention", "Enter or select a destination path!")
             return
 
         for item in selected_items:
@@ -143,37 +143,37 @@ class BackupApp:
 
     def save_list(self):
         if not self.sources:
-            messagebox.showwarning("Внимание", "Список пуст!")
+            messagebox.showwarning("Attention", "The list is empty!")
             return
         file_path = filedialog.asksaveasfilename(defaultextension=".json",
                                                  filetypes=[("JSON files", "*.json"),
                                                             ("All files", "*.*")],
-                                                 title="Сохранить список как")
+                                                 title="Save List As")
         if file_path:
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(self.sources, f, ensure_ascii=False, indent=4)
-                messagebox.showinfo("Успех", "Список успешно сохранен!")
+                messagebox.showinfo("Success", "List saved successfully!")
             except Exception as e:
-                messagebox.showerror("Ошибка", f"Не удалось сохранить список: {e}")
+                messagebox.showerror("Error", f"Failed to save list: {e}")
 
     def load_list(self):
         file_path = filedialog.askopenfilename(
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
-            title="Загрузить список")
+            title="Load List")
         if file_path:
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     loaded_sources = json.load(f)
 
                 self.sources = []
-                # Очистка tree
+                # Clear tree
                 for item in self.tree.get_children():
                     self.tree.delete(item)
 
                 missing_paths = []
                 for item in loaded_sources:
-                    # item теперь словарь {"source": ..., "dest": ...}
+                    # item is now a dictionary {"source": ..., "dest": ...}
                     source = item.get("source")
                     dest = item.get("dest", "")
                     if os.path.exists(source):
@@ -183,23 +183,23 @@ class BackupApp:
                         missing_paths.append(source)
 
                 if missing_paths:
-                    messagebox.showwarning("Внимание",
-                                           f"Некоторые исходные пути не найдены и пропущены:\n" + "\n".join(
+                    messagebox.showwarning("Attention",
+                                           f"Some source paths were not found and were skipped:\n" + "\n".join(
                                                missing_paths[:5]))
                 else:
-                    messagebox.showinfo("Успех", "Список успешно загружен!")
+                    messagebox.showinfo("Success", "List loaded successfully!")
             except Exception as e:
-                messagebox.showerror("Ошибка", f"Не удалось загрузить список: {e}")
+                messagebox.showerror("Error", f"Failed to load list: {e}")
 
     def start_backup_thread(self):
         if not self.sources:
-            messagebox.showwarning("Внимание", "Добавьте хотя бы один файл или папку!")
+            messagebox.showwarning("Attention", "Add at least one file or folder!")
             return
 
-        # Проверка, что у всех элементов указано назначение
+        # Check that all items have a destination specified
         for item in self.sources:
             if not item["dest"]:
-                messagebox.showwarning("Внимание", f"Укажите путь назначения для: {item['source']}")
+                messagebox.showwarning("Attention", f"Specify destination path for: {item['source']}")
                 return
 
         self.btn_start.config(state="disabled")
@@ -214,7 +214,7 @@ class BackupApp:
                 dest = item["dest"]
                 name = os.path.basename(path)
 
-                self.status_label.config(text=f"Копирование: {name}")
+                self.status_label.config(text=f"Copying: {name}")
                 self.progress['value'] = (i / total) * 100
 
                 os.makedirs(dest, exist_ok=True)
@@ -228,12 +228,12 @@ class BackupApp:
                     shutil.copy2(path, target_path)
 
             self.progress['value'] = 100
-            self.status_label.config(text="Бэкап успешно завершен!", fg="green")
-            messagebox.showinfo("Готово", "Все файлы успешно скопированы по указанным путям.")
+            self.status_label.config(text="Backup completed successfully!", fg="green")
+            messagebox.showinfo("Done", "All files have been successfully copied to the specified paths.")
 
         except Exception as e:
-            self.status_label.config(text="Ошибка!", fg="red")
-            messagebox.showerror("Ошибка", f"Произошел сбой: {str(e)}")
+            self.status_label.config(text="Error!", fg="red")
+            messagebox.showerror("Error", f"A failure occurred: {str(e)}")
 
         finally:
             self.btn_start.config(state="normal")
