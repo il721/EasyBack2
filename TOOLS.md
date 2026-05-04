@@ -29,8 +29,3 @@ Below is a list of tools available for use during this session:
 - **`update_status`**: Update the status and plan of the current task (used in `[CODE]` mode).
 - **`submit`**: Submit the solution and terminate the session.
 - **`answer`**: Provide a comprehensive answer to the user and terminate the session.
-
-### Model Context Protocol (MCP)
-- **`/mcp`**: Manage MCP server connections, list active servers, and add new ones.
-- **External Tools**: Connect to external MCP servers to extend capabilities (e.g., database access, specialized APIs).
-- **IDE as MCP Server**: Allow external AI clients (Claude, Cursor, etc.) to interact with PyCharm.
