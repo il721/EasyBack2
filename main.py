@@ -4,6 +4,7 @@ import os
 import threading
 import json
 from datetime import datetime
+from styles import GLOBAL_STYLE, START_BUTTON_STYLE, STATUS_LABEL_STYLE
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QLabel, QTableWidget, QTableWidgetItem, QHeaderView,
                              QFileDialog, QMessageBox, QProgressBar, QGroupBox, QLineEdit)
@@ -24,6 +25,7 @@ class BackupApp(QMainWindow):
 
         self.sources = []  # List of dictionaries: {"source": path, "dest": path}
 
+        self.setStyleSheet(GLOBAL_STYLE)
         self.setup_ui()
         self.signals = BackupWorkerSignals()
         self.signals.progress.connect(self.update_progress)
@@ -107,14 +109,13 @@ class BackupApp(QMainWindow):
 
         # Start button and status
         self.btn_start = QPushButton("START BACKUP")
-        self.btn_start.setStyleSheet(
-            "background-color: #4CAF50; color: white; font-weight: bold; font-size: 14px; padding: 10px;")
+        self.btn_start.setStyleSheet(START_BUTTON_STYLE)
         self.btn_start.clicked.connect(self.start_backup_thread)
         main_layout.addWidget(self.btn_start)
 
         self.status_label = QLabel("Ready")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet("color: blue; font-weight: bold;")
+        self.status_label.setStyleSheet(STATUS_LABEL_STYLE)
         main_layout.addWidget(self.status_label)
 
         self.progress = QProgressBar()
@@ -274,7 +275,7 @@ class BackupApp(QMainWindow):
                     dest = item["dest"]
                     name = os.path.basename(path)
 
-                    self.signals.status.emit(f"Copying: {name}", "blue")
+                    self.signals.status.emit(f"Copying: {name}", "#2B79C2")
                     self.signals.progress.emit(int((i / total) * 100))
 
                     os.makedirs(dest, exist_ok=True)
@@ -289,12 +290,12 @@ class BackupApp(QMainWindow):
                     continue
 
             self.signals.progress.emit(100)
-            self.signals.status.emit("Backup completed successfully!", "green")
+            self.signals.status.emit("Backup completed successfully!", "#4CAF50")
             self.signals.finished.emit(True,
                                        "All files have been successfully copied to the specified paths.")
 
         except Exception as e:
-            self.signals.status.emit("Error!", "red")
+            self.signals.status.emit("Error!", "#F44336")
             self.signals.finished.emit(False, f"A failure occurred: {str(e)}")
 
 
